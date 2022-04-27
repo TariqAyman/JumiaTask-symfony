@@ -5,7 +5,7 @@ namespace App\DQL;
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\Lexer;
 
-class Regexp extends FunctionNode
+class RegexpFunction extends FunctionNode
 {
     public $value = null;
 
