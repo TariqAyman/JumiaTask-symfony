@@ -8,6 +8,9 @@ number.
 The page should render a list of all phone numbers available in the DB. It should be possible to
 filter by country and state. Pagination is an extra.
 
+![Capture](https://user-images.githubusercontent.com/13910335/165547622-f8151f29-7665-450e-aa00-7cac65bb7140.PNG)
+
+
 # Topics to take in account:
 - Try to show your OOP skills
 - Code standards/clean code
