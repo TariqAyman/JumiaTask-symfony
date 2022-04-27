@@ -4,9 +4,10 @@ namespace App\DataFixtures;
 
 use App\Entity\Country;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class CountryFixture extends Fixture
+class CountryFixture extends Fixture implements FixtureGroupInterface
 {
     public function load(ObjectManager $manager): void
     {
