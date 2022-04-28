@@ -47,7 +47,7 @@ After cloning the app will follow these steps:
 1. run `composer install` to install dependencies
 2. copy from .env.example to a new file named .env `cp .env.example .env`
 3. Create Database scheme `php bin/console  doctrine:mig:mig`
-4. Load Country Data `php bin/console  doctrine:fixtures:load --group=countryFixture --append`
+4. Load Country Data `php bin/console doctrine:fixtures:load --group=countryFixture --append`
 
 ## Run App on Docker
 - On the folder 'JumiaTask-symfony/' run the following code:
