@@ -24,11 +24,11 @@
             self.dataTable = $('#table').DataTable({
                 "processing": true,
                 "serverSide": true,
-                "pagingType": "full_numbers",
-                "paging" : false,
-                "info" : false,
+                "pagingType": "simple",
+                "paging": false,
+                "info": false,
                 "searching": false,
-                "pageLength": 100,
+                "pageLength": 10,
                 "sort": false,
                 "ajax": {
                     "url": self.urL,

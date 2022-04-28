@@ -21,6 +21,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CustomerRepository extends ServiceEntityRepository
 {
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Customer::class);
@@ -80,12 +83,13 @@ class CustomerRepository extends ServiceEntityRepository
      */
     public function queryFetchFilterPhoneNumbers(array $filters)
     {
-        $countryId = (int) $filters['selectedCountry'];
+        $countryId = $filters['selectedCountry'] ?? null;
 
         $state = $filters['selectedState'] ?? null;
 
         $queryBuilder = $this->createQueryBuilder('c')
             ->select([
+                'c.id as id',
                 'REGEXP(c.phone,cr.regex) AS state',
                 'cr.name AS countryName',
                 'cr.code AS  countryCode',
@@ -99,9 +103,14 @@ class CustomerRepository extends ServiceEntityRepository
             $queryBuilder->setParameter('countryId', $countryId);
         }
 
-        if ($state !== 'null') {
+        if (!in_array($state, [null, 'null'])) {
             $queryBuilder->andWhere('REGEXP(c.phone,cr.regex) = :isValid');
             $queryBuilder->setParameter('isValid', $state, \PDO::PARAM_BOOL);
+        }
+
+        if (!empty($filters['length']) && (int) $filters['length'] > -1) {
+            $queryBuilder->setFirstResult($filters['start']);
+            $queryBuilder->setMaxResults((int) $filters['length']);
         }
 
         return $queryBuilder->getQuery()->getResult();
