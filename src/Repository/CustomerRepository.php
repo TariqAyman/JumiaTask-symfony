@@ -8,6 +8,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -79,14 +80,10 @@ class CustomerRepository extends ServiceEntityRepository
      * Fetch phone numbers records from database according to the given filters
      *
      * @param array $filters
-     * @return Query - filtered phone number
+     * @return float|int|mixed|string - filtered phone number
      */
-    public function queryFetchFilterPhoneNumbers(array $filters)
+    public function fetchFilterPhoneNumbers(array $filters)
     {
-        $countryId = $filters['selectedCountry'] ?? null;
-
-        $state = $filters['selectedState'] ?? null;
-
         $queryBuilder = $this->createQueryBuilder('c')
             ->select([
                 'c.id as id',
@@ -97,6 +94,43 @@ class CustomerRepository extends ServiceEntityRepository
             ])
             ->leftJoin(Country::class, 'cr', 'WITH', "instr(SUBSTRING(c.phone, 1,instr(c.phone,' ') -1),cr.code)>0");
 
+        if (!empty($filters['length']) && (int) $filters['length'] > -1) {
+            $queryBuilder->setFirstResult($filters['start']);
+            $queryBuilder->setMaxResults((int) $filters['length']);
+        }
+
+        $this->pepperFilters($queryBuilder,$filters);
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    /**
+     * @param array $filters
+     * @return float|int
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function countFilterPhoneNumbers(array $filters)
+    {
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->leftJoin(Country::class, 'cr', 'WITH', "instr(SUBSTRING(c.phone, 1,instr(c.phone,' ') -1),cr.code)>0");
+
+        $this->pepperFilters($queryBuilder,$filters);
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param QueryBuilder $queryBuilder
+     * @param array $filters
+     * @return void
+     */
+    private function pepperFilters(QueryBuilder &$queryBuilder, array $filters)
+    {
+        $countryId = $filters['selectedCountry'] ?? null;
+
+        $state = $filters['selectedState'] ?? null;
 
         if ($countryId) {
             $queryBuilder->where('cr.id = :countryId');
@@ -107,12 +141,5 @@ class CustomerRepository extends ServiceEntityRepository
             $queryBuilder->andWhere('REGEXP(c.phone,cr.regex) = :isValid');
             $queryBuilder->setParameter('isValid', $state, \PDO::PARAM_BOOL);
         }
-
-        if (!empty($filters['length']) && (int) $filters['length'] > -1) {
-            $queryBuilder->setFirstResult($filters['start']);
-            $queryBuilder->setMaxResults((int) $filters['length']);
-        }
-
-        return $queryBuilder->getQuery()->getResult();
     }
 }
