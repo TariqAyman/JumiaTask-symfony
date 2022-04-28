@@ -11,7 +11,12 @@ class InstrFunction extends FunctionNode
     public $str = null;
     public $substr = null;
 
-    public function parse(\Doctrine\ORM\Query\Parser $parser)
+    /**
+     * @param \Doctrine\ORM\Query\Parser $parser
+     * @return void
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    public function parse(\Doctrine\ORM\Query\Parser $parser): void
     {
         $parser->match(Lexer::T_IDENTIFIER);
         $parser->match(Lexer::T_OPEN_PARENTHESIS);
@@ -21,7 +26,11 @@ class InstrFunction extends FunctionNode
         $parser->match(Lexer::T_CLOSE_PARENTHESIS);
     }
 
-    public function getSql(SqlWalker $sqlWalker)
+    /**
+     * @param \Doctrine\ORM\Query\SqlWalker $sqlWalker
+     * @return string
+     */
+    public function getSql(SqlWalker $sqlWalker): string
     {
         return 'INSTR(' . $this->str->dispatch($sqlWalker) . ', ' . $this->substr->dispatch($sqlWalker) . ')';
     }
